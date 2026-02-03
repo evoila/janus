@@ -1,0 +1,52 @@
+# Multi-stage build for native compilation
+# Spring Boot 4.0.0 requires GraalVM with Java 25+
+FROM ghcr.io/graalvm/native-image-community:25 AS builder
+
+# Install Maven
+RUN microdnf install -y maven
+
+# Set working directory
+WORKDIR /app
+
+# Copy Maven files
+COPY pom.xml .
+COPY src ./src
+
+# Build the native executable
+RUN mvn clean -Pnative compile spring-boot:process-aot native:compile -DskipTests
+
+# Runtime stage
+FROM ubuntu:24.04
+
+# Install minimal runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN groupadd -r janus && useradd -r -g janus janus
+
+# Create application directory
+WORKDIR /app
+
+# Copy the native executable from builder stage
+COPY --from=builder /app/target/janus /app/janus
+
+# Make it executable and set ownership
+RUN chmod +x /app/janus && \
+    chown janus:janus /app/janus
+
+# Switch to non-root user
+USER janus
+
+# Expose the default Spring Boot port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Run the native executable
+ENTRYPOINT ["./janus"] 

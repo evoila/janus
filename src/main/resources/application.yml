@@ -1,0 +1,199 @@
+otel:
+  service:
+    name: janus
+  exporter:
+    otlp:
+      endpoint: http://localhost:4317
+      protocol: grpc
+  logs:
+    exporter: otlp
+  metrics:
+    exporter: none
+  traces:
+    exporter: otlp
+    sampler: always_on
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:all}
+  application:
+    name: janus
+  reactor:
+    netty:
+      # Disable native transport for GraalVM native image compatibility
+      native: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8082/realms/observability}
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://localhost:8082/realms/observability/protocol/openid-connect/certs}
+
+# Custom CA certificate path for OAuth2/Keycloak SSL connections
+security:
+  oauth2:
+    custom-ca-path: ${OAUTH2_CUSTOM_CA_PATH:}
+
+management:
+  metrics:
+    tags:
+      application: label-proxy
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,loggers
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+proxy:
+  config:
+    enforcement:
+      enabled: true
+      tenant-claim: groups
+      skip-for-admins: true
+      admin-group: admin
+
+  services:
+    loki:
+      url: ${LOKI_URL:http://localhost:8081}
+      type: logql
+    
+    thanos:
+      url: ${THANOS_URL:http://localhost:10902}
+      type: promql
+    
+    tempo:
+      url: ${TEMPO_URL:http://localhost:3100}
+      type: traceql
+
+# Unified label store configuration for all services (Loki, Tempo, Thanos)
+label-store:
+  type: ${LABEL_STORE_TYPE:configmap}  # Options: config (from application.yml), configmap (from k8s configmap) - default: config for local dev
+  configmap:
+    path: ${LABEL_STORE_CONFIGMAP_PATH:./local-configmap.yaml}
+    watch-enabled: ${LABEL_STORE_CONFIGMAP_WATCH_ENABLED:true}
+    watch-interval: ${LABEL_STORE_CONFIGMAP_WATCH_INTERVAL:30}
+
+# Service-specific label configurations
+labels:
+
+  # Global admin access (applies to all services)
+  admin:
+    labels:
+      - "*"
+    cluster-wide: [ ]
+
+  # Thanos/Prometheus configuration
+  thanos:
+    user-label-constraints:
+      order-service-team:
+        labels:
+          - service
+          - namespace
+          - application
+          - instance
+          - pod
+          - id
+          - area
+        service:
+          - ".*order-service"
+          - microservices-stock-service
+        namespace:
+          - demo
+        application:
+          - ".*order-service"
+          - ".*stock-service"
+        # instance, pod, id, area are NOT defined, so they automatically allow any value
+
+  # Loki configuration
+  loki:
+    user-label-constraints:
+      order-service-team:
+        labels:
+          - service_name
+          - k8s_namespace_name
+        service_name:
+          - "*order-service"
+          - "*stock-service"
+        k8s_namespace_name:
+            - demo
+
+  # Tempo configuration
+  tempo:
+    user-label-constraints:
+      order-service-team:
+        labels:
+          - resource.service.name
+          - resource.namespace
+        resource.service.name:
+          - "*order-service"
+          - microservices-stock-service
+        resource.namespace:
+          - demo
+
+# WebClient configuration
+webclient:
+  buffer-size: 52428800  # 50MB buffer for large responses
+
+logging:
+  level:
+    com.evoila.janus.common.labelstore.SimpleLabelStore: DEBUG
+
+    com.evoila.janus.common.enforcement.core.SingleLabelEnhancer: DEBUG
+    com.evoila.janus.common.enforcement.core.com.evoila.janus.common.enforcement.query.QueryEnhancementProcessor: DEBUG
+
+---
+# Profile for running all services together (monolithic)
+spring:
+  config:
+    activate:
+      on-profile: all
+server:
+  port: 8080
+  http2:
+    enabled: true
+
+---
+# Profile for running only Loki service
+spring:
+  config:
+    activate:
+      on-profile: loki
+  application:
+    name: loki
+server:
+  port: 8081
+  http2:
+    enabled: true
+
+---
+# Profile for running only Thanos service
+spring:
+  config:
+    activate:
+      on-profile: thanos
+  application:
+    name: thanos
+server:
+  port: 8083
+  http2:
+    enabled: true
+
+---
+# Profile for running only Tempo service
+spring:
+  config:
+    activate:
+      on-profile: tempo
+  application:
+    name: tempo
+server:
+  port: 8085
+  http2:
+    enabled: true

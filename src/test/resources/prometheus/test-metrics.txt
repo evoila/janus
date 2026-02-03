@@ -1,0 +1,100 @@
+# HELP http_requests_total Total number of HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{namespace="demo",service="order-service",job="app"} 100
+http_requests_total{namespace="demo",service="payment-service",job="app"} 50
+http_requests_total{namespace="observability",service="monitoring",job="infra"} 200
+http_requests_total{namespace="production",service="critical-app",job="prod"} 500
+
+# Metrics for wildcard pattern testing (prefix: demo-*)
+http_requests_total{namespace="demo-orders",service="order-api",job="app"} 100
+http_requests_total{namespace="demo-payments",service="payment-api",job="app"} 50
+http_requests_total{namespace="demo-sensitive",service="secret-api",job="app"} 25
+
+# Metrics for wildcard pattern testing (suffix: *-service)
+http_requests_total{namespace="order-service",service="order-api",job="app"} 75
+http_requests_total{namespace="payment-service",service="payment-api",job="app"} 60
+
+# Metrics for staging namespace
+http_requests_total{namespace="staging-orders",service="order-api",job="staging"} 30
+
+# Metrics for suffix pattern testing (prod)
+http_requests_total{namespace="prod",service="order-service",job="prod"} 200
+http_requests_total{namespace="prod",service="payment-service",job="prod"} 150
+http_requests_total{namespace="prod",service="user-processor",job="prod"} 80
+
+# HELP http_request_duration_seconds HTTP request duration in seconds
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{namespace="demo",service="order-service",job="app",le="0.1"} 50
+http_request_duration_seconds_bucket{namespace="demo",service="order-service",job="app",le="0.5"} 80
+http_request_duration_seconds_bucket{namespace="demo",service="order-service",job="app",le="1"} 95
+http_request_duration_seconds_bucket{namespace="demo",service="order-service",job="app",le="+Inf"} 100
+http_request_duration_seconds_sum{namespace="demo",service="order-service",job="app"} 25.5
+http_request_duration_seconds_count{namespace="demo",service="order-service",job="app"} 100
+
+http_request_duration_seconds_bucket{namespace="observability",service="monitoring",job="infra",le="0.1"} 150
+http_request_duration_seconds_bucket{namespace="observability",service="monitoring",job="infra",le="0.5"} 180
+http_request_duration_seconds_bucket{namespace="observability",service="monitoring",job="infra",le="1"} 195
+http_request_duration_seconds_bucket{namespace="observability",service="monitoring",job="infra",le="+Inf"} 200
+http_request_duration_seconds_sum{namespace="observability",service="monitoring",job="infra"} 30.2
+http_request_duration_seconds_count{namespace="observability",service="monitoring",job="infra"} 200
+
+http_request_duration_seconds_bucket{namespace="production",service="critical-app",job="prod",le="0.1"} 400
+http_request_duration_seconds_bucket{namespace="production",service="critical-app",job="prod",le="0.5"} 450
+http_request_duration_seconds_bucket{namespace="production",service="critical-app",job="prod",le="1"} 490
+http_request_duration_seconds_bucket{namespace="production",service="critical-app",job="prod",le="+Inf"} 500
+http_request_duration_seconds_sum{namespace="production",service="critical-app",job="prod"} 75.8
+http_request_duration_seconds_count{namespace="production",service="critical-app",job="prod"} 500
+
+http_request_duration_seconds_bucket{namespace="demo-orders",service="order-api",job="app",le="0.1"} 40
+http_request_duration_seconds_bucket{namespace="demo-orders",service="order-api",job="app",le="0.5"} 70
+http_request_duration_seconds_bucket{namespace="demo-orders",service="order-api",job="app",le="1"} 90
+http_request_duration_seconds_bucket{namespace="demo-orders",service="order-api",job="app",le="+Inf"} 100
+http_request_duration_seconds_sum{namespace="demo-orders",service="order-api",job="app"} 22.3
+http_request_duration_seconds_count{namespace="demo-orders",service="order-api",job="app"} 100
+
+http_request_duration_seconds_bucket{namespace="demo-payments",service="payment-api",job="app",le="0.1"} 25
+http_request_duration_seconds_bucket{namespace="demo-payments",service="payment-api",job="app",le="0.5"} 40
+http_request_duration_seconds_bucket{namespace="demo-payments",service="payment-api",job="app",le="1"} 48
+http_request_duration_seconds_bucket{namespace="demo-payments",service="payment-api",job="app",le="+Inf"} 50
+http_request_duration_seconds_sum{namespace="demo-payments",service="payment-api",job="app"} 12.8
+http_request_duration_seconds_count{namespace="demo-payments",service="payment-api",job="app"} 50
+
+http_request_duration_seconds_bucket{namespace="staging-orders",service="order-api",job="staging",le="0.1"} 15
+http_request_duration_seconds_bucket{namespace="staging-orders",service="order-api",job="staging",le="0.5"} 25
+http_request_duration_seconds_bucket{namespace="staging-orders",service="order-api",job="staging",le="1"} 28
+http_request_duration_seconds_bucket{namespace="staging-orders",service="order-api",job="staging",le="+Inf"} 30
+http_request_duration_seconds_sum{namespace="staging-orders",service="order-api",job="staging"} 8.2
+http_request_duration_seconds_count{namespace="staging-orders",service="order-api",job="staging"} 30
+
+# HELP up Target up status
+# TYPE up gauge
+up{namespace="demo",service="order-service",job="app"} 1
+up{namespace="demo",service="payment-service",job="app"} 1
+up{namespace="observability",service="monitoring",job="infra"} 1
+up{namespace="production",service="critical-app",job="prod"} 1
+up{namespace="demo-orders",service="order-api",job="app"} 1
+up{namespace="demo-payments",service="payment-api",job="app"} 1
+up{namespace="demo-sensitive",service="secret-api",job="app"} 1
+up{namespace="staging-orders",service="order-api",job="staging"} 1
+up{namespace="order-service",service="order-api",job="app"} 1
+up{namespace="payment-service",service="payment-api",job="app"} 1
+
+# HELP memory_usage_bytes Memory usage in bytes
+# TYPE memory_usage_bytes gauge
+memory_usage_bytes{namespace="demo",service="order-service",job="app"} 104857600
+memory_usage_bytes{namespace="demo",service="payment-service",job="app"} 52428800
+memory_usage_bytes{namespace="observability",service="monitoring",job="infra"} 209715200
+memory_usage_bytes{namespace="production",service="critical-app",job="prod"} 524288000
+memory_usage_bytes{namespace="demo-orders",service="order-api",job="app"} 83886080
+memory_usage_bytes{namespace="demo-payments",service="payment-api",job="app"} 41943040
+memory_usage_bytes{namespace="staging-orders",service="order-api",job="staging"} 62914560
+
+# HELP cpu_usage_percent CPU usage percentage
+# TYPE cpu_usage_percent gauge
+cpu_usage_percent{namespace="demo",service="order-service",job="app"} 25.5
+cpu_usage_percent{namespace="demo",service="payment-service",job="app"} 15.2
+cpu_usage_percent{namespace="observability",service="monitoring",job="infra"} 45.8
+cpu_usage_percent{namespace="production",service="critical-app",job="prod"} 78.3
+cpu_usage_percent{namespace="demo-orders",service="order-api",job="app"} 22.1
+cpu_usage_percent{namespace="demo-payments",service="payment-api",job="app"} 18.4
+cpu_usage_percent{namespace="staging-orders",service="order-api",job="staging"} 12.7

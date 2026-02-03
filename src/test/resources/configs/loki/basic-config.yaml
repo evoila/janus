@@ -1,0 +1,38 @@
+loki:
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - service_name
+        - k8s_namespace_name
+        - k8s_pod_name
+        - k8s_container_name
+      service_name:
+        - "*order-service"
+        - "*stock-service"
+      k8s_namespace_name:
+        - demo
+        - observability
+      k8s_pod_name:
+        - ".*order-service.*"
+        - ".*stock-service.*"
+      k8s_container_name:
+        - ".*order-service.*"
+        - ".*stock-service.*"
+    
+    admin-team:
+      labels:
+        - "*"
+      service_name:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+      k8s_pod_name:
+        - "*"
+      k8s_container_name:
+        - "*"
+
+  tenant-headers:
+    order-service-team:
+      X-Scope-OrgID: tenant1
+    admin-team:
+      X-Scope-OrgID: tenant2 

@@ -1,0 +1,22 @@
+{
+  "success_response": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": []
+    }
+  },
+  "labels_response": {
+    "status": "success",
+    "data": ["service", "namespace", "pod"]
+  },
+  "label_values_response": {
+    "status": "success",
+    "data": ["microservices-order-service", "microservices-stock-service"]
+  },
+  "error_response": {
+    "status": "error",
+    "error": "query error",
+    "errorType": "bad_data"
+  }
+} 

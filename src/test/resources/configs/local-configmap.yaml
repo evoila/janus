@@ -1,0 +1,108 @@
+admin:
+  labels:
+    - "*"
+  header:
+    - X-Scope-OrgID: tenant1
+    - X-Scope-OrgID2: tenant3
+  cluster-wide: []
+
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - demo
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - observability
+    see-all:
+      labels:
+        - "*"
+      service:
+        - ".+"
+      namespace:
+        - ".+"
+    admin:
+      labels:
+        - "*"
+      service:
+        - "*"
+      namespace:
+        - "*"
+      job:
+        - "*"
+
+# Loki configuration  default-action: allow
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    see-all:
+      header:
+        - X-Scope-OrgID: tenant1
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "demo"
+      service_name:
+        - "*order-service"
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+    see-all:
+      labels:
+        - "*"
+      service:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+
+
+
+
+# Tempo configuration // TODO, TraceQL Doesnt support regex, so we need to use exact matches
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"
+    see-all:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"
+#      resource.namespace:  // TODO, in tempo is namespace not inded
+#        - demo

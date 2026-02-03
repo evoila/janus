@@ -1,0 +1,167 @@
+# E2E Test ConfigMap - PERMISSIVE Mode
+# Broad wildcard access patterns
+# Teams can see multiple namespaces with patterns like `demo-.*`, `.*-service`
+
+admin:
+  labels:
+    - "*"
+  header:
+    - X-Scope-OrgID: admin-tenant
+  cluster-wide: []
+
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    wildcard-team:
+      header:
+        - X-Scope-OrgID: tenant-wildcard
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # order-service-team can access any namespace starting with "demo-"
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - demo-.*
+
+    # my-service-team can access any namespace ending with "-service"
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - ".*-service"
+
+    # wildcard-team can access namespaces containing "order"
+    wildcard-team:
+      labels:
+        - "*"
+      namespace:
+        - ".*order.*"
+
+    # multi-group-user gets union of demo-.* AND .*-service patterns (combined into one regex)
+    multi-group-user:
+      labels:
+        - "*"
+      namespace:
+        - "demo-.*|.*-service"
+
+    admin:
+      labels:
+        - "*"
+      namespace:
+        - "*"
+
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    wildcard-team:
+      header:
+        - X-Scope-OrgID: tenant-wildcard
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # Prefix pattern: demo-.*
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo-.*
+
+    # Suffix pattern: .*-service
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - ".*-service"
+
+    # Middle pattern: .*order.*
+    wildcard-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - ".*order.*"
+
+    multi-group-user:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "demo-.*|.*-service"
+
+    admin:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    wildcard-team:
+      header:
+        - X-Scope-OrgID: tenant-wildcard
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # Prefix pattern for services
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-.*
+
+    # Suffix pattern for services
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - ".*-service"
+
+    # Middle pattern
+    wildcard-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - ".*order.*"
+
+    multi-group-user:
+      labels:
+        - "*"
+      resource.service.name:
+        - "demo-.*|.*-service"
+
+    admin:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"

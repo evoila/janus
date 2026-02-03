@@ -1,0 +1,194 @@
+# E2E Test ConfigMap - EXCLUDE Mode
+# Include/exclude pattern testing
+# Test overlapping include/exclude rules
+
+admin:
+  labels:
+    - "*"
+  header:
+    - X-Scope-OrgID: admin-tenant
+  cluster-wide: []
+
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    exclude-team:
+      header:
+        - X-Scope-OrgID: tenant-exclude
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # order-service-team: all demo namespaces EXCEPT demo-sensitive
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - demo
+        - demo-orders
+        - demo-payments
+        # demo-sensitive is explicitly NOT included
+
+    # my-service-team: observability namespaces only
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - observability
+        - staging-orders
+
+    # exclude-team: has broad access but specific exclusions via limited list
+    exclude-team:
+      labels:
+        - "*"
+      namespace:
+        - demo
+        - demo-orders
+        - demo-payments
+        - observability
+        # production and staging-* are excluded
+
+    # multi-group-user: union of order-service-team and my-service-team
+    multi-group-user:
+      labels:
+        - "*"
+      namespace:
+        - demo
+        - demo-orders
+        - demo-payments
+        - observability
+        - staging-orders
+
+    admin:
+      labels:
+        - "*"
+      namespace:
+        - "*"
+
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    exclude-team:
+      header:
+        - X-Scope-OrgID: tenant-exclude
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo
+        - demo-orders
+        - demo-payments
+
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - observability
+        - staging-orders
+
+    exclude-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo
+        - demo-orders
+        - demo-payments
+        - observability
+
+    multi-group-user:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo
+        - demo-orders
+        - demo-payments
+        - observability
+        - staging-orders
+
+    admin:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    exclude-team:
+      header:
+        - X-Scope-OrgID: tenant-exclude
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-order-service
+        - demo-payment-service
+        # demo-sensitive-service excluded
+
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - observability-prometheus
+        - observability-grafana
+        - staging-order-service
+
+    exclude-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-order-service
+        - demo-payment-service
+        - observability-prometheus
+        - observability-grafana
+
+    multi-group-user:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-order-service
+        - demo-payment-service
+        - observability-prometheus
+        - observability-grafana
+        - staging-order-service
+
+    admin:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"

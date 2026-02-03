@@ -1,0 +1,154 @@
+# E2E Test ConfigMap - STRICT Mode
+# Minimal access, exact match only - no wildcards, no patterns
+# Each team can only see their exact namespace
+
+admin:
+  labels:
+    - "*"
+  header:
+    - X-Scope-OrgID: admin-tenant
+  cluster-wide: []
+
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    no-access-user:
+      header:
+        - X-Scope-OrgID: tenant-no-access
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # order-service-team can ONLY access exact namespace=demo
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - demo
+
+    # my-service-team can ONLY access exact namespace=observability
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - observability
+
+    # multi-group-user has access to BOTH demo AND observability
+    multi-group-user:
+      labels:
+        - "*"
+      namespace:
+        - demo
+        - observability
+
+    # no-access-user has NO namespace access (empty list)
+    # This should result in access denied for all queries
+
+    # admin can access all namespaces
+    admin:
+      labels:
+        - "*"
+      namespace:
+        - "*"
+
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    no-access-user:
+      header:
+        - X-Scope-OrgID: tenant-no-access
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo
+
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - observability
+
+    multi-group-user:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo
+        - observability
+
+    admin:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    no-access-user:
+      header:
+        - X-Scope-OrgID: tenant-no-access
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # Strict: exact service names only
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-order-service
+        - demo-payment-service
+
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - observability-prometheus
+        - observability-grafana
+
+    multi-group-user:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-order-service
+        - demo-payment-service
+        - observability-prometheus
+        - observability-grafana
+
+    admin:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"

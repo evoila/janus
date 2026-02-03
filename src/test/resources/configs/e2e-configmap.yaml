@@ -1,0 +1,116 @@
+# E2E Test ConfigMap for label-based access control
+# This configuration defines clear, predictable constraints for E2E testing
+
+admin:
+  labels:
+    - "*"
+  header:
+    - X-Scope-OrgID: admin-tenant
+  cluster-wide: []
+
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # order-service-team can only access namespace=demo
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - demo
+
+    # my-service-team can only access namespace=observability
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - observability
+
+    # admin can access all namespaces
+    admin:
+      labels:
+        - "*"
+      namespace:
+        - "*"
+      service:
+        - "*"
+      job:
+        - "*"
+
+# Loki configuration for E2E tests
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - demo
+
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - observability
+
+    admin:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+# Tempo configuration for E2E tests
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # order-service-team can only access traces from demo services
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - demo-order-service
+        - demo-payment-service
+
+    # my-service-team can only access traces from observability services
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - observability-prometheus
+        - observability-grafana
+
+    # admin can access all services
+    admin:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"

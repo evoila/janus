@@ -1,0 +1,18 @@
+{
+  "basic_queries": [
+    "rate(http_requests_total[5m])",
+    "sum(rate(http_requests_total[5m])) by (service_name)",
+    "{service_name=\"microservices-order-service\"}",
+    "{service_name=~\".*order-service\", k8s_namespace_name=\"demo\"}"
+  ],
+  "complex_queries": [
+    "sum(rate(http_requests_total[5m])) by (service_name, k8s_namespace_name) * on(service_name) group_left(k8s_pod_name) k8s_pod_info",
+    "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service_name))"
+  ],
+  "label_queries": [
+    "{service_name=\"microservices-order-service\"}",
+    "{k8s_namespace_name=\"demo\"}",
+    "{k8s_pod_name=~\".*order-service.*\"}",
+    "{service_name=\"*order-service\"}"
+  ]
+} 

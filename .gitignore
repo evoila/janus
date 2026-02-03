@@ -1,0 +1,56 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+META-INF/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+spring-boot-*.log
+application-*.properties
+application-*.yml
+!application.yml
+
+# Native Image
+*.so
+*.dylib
+*.dll
+.scannerwork/
+.continue/
+
+# Sonar
+sonar-project.properties
+sonarqube/
+
+# Claude
+.claude/
+.continue/

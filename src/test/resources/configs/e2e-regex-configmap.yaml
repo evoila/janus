@@ -1,0 +1,170 @@
+# E2E Test ConfigMap - REGEX Mode
+# Complex regex patterns: ^prod-.*$, [a-z]+-service
+# Test anchors, character classes, quantifiers
+
+admin:
+  labels:
+    - "*"
+  header:
+    - X-Scope-OrgID: admin-tenant
+  cluster-wide: []
+
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    regex-team:
+      header:
+        - X-Scope-OrgID: tenant-regex
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # Regex pattern: starts with "demo" (anchored)
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - "~^demo.*$"
+
+    # Regex pattern: ends with "-service"
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - "~.*-service$"
+
+    # Complex regex: lowercase letters followed by -service
+    regex-team:
+      labels:
+        - "*"
+      namespace:
+        - "~^[a-z]+-service$"
+
+    # Multi-group gets union of patterns
+    multi-group-user:
+      labels:
+        - "*"
+      namespace:
+        - "~^demo.*$"
+        - "~.*-service$"
+
+    admin:
+      labels:
+        - "*"
+      namespace:
+        - "*"
+
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    regex-team:
+      header:
+        - X-Scope-OrgID: tenant-regex
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # Regex: starts with "demo"
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "~^demo.*$"
+
+    # Regex: ends with "-service"
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "~.*-service$"
+
+    # Complex regex pattern
+    regex-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "~^[a-z]+-service$"
+
+    multi-group-user:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "~^demo.*$"
+        - "~.*-service$"
+
+    admin:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+    regex-team:
+      header:
+        - X-Scope-OrgID: tenant-regex
+    multi-group-user:
+      header:
+        - X-Scope-OrgID: tenant3
+    admin:
+      header:
+        - X-Scope-OrgID: admin-tenant
+
+  user-label-constraints:
+    # Regex: starts with "demo-"
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "~^demo-.*$"
+
+    # Regex: ends with "-service"
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "~.*-service$"
+
+    # Complex regex: observability prefix
+    regex-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "~^observability-[a-z]+$"
+
+    multi-group-user:
+      labels:
+        - "*"
+      resource.service.name:
+        - "~^demo-.*$"
+        - "~.*-service$"
+
+    admin:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"

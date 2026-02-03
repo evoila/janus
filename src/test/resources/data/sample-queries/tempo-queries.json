@@ -1,0 +1,19 @@
+{
+  "basic_queries": [
+    "{}",
+    "{service.name=\"microservices-order-service\"}",
+    "{service.name=~\".*order-service\"}",
+    "{k8s.namespace.name=\"demo\"}"
+  ],
+  "complex_queries": [
+    "{service.name=\"microservices-order-service\" && k8s.namespace.name=\"demo\"}",
+    "{service.name=~\".*order-service\" && k8s.pod.name=~\".*order-service.*\"}",
+    "{service.name=\"microservices-order-service\" && duration > 100ms}"
+  ],
+  "search_queries": [
+    "service.name=\"microservices-order-service\"",
+    "service.name=~\".*order-service\"",
+    "k8s.namespace.name=\"demo\"",
+    "duration > 100ms"
+  ]
+} 

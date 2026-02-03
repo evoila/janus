@@ -1,0 +1,38 @@
+tempo:
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - service.name
+        - k8s.namespace.name
+        - k8s.pod.name
+        - k8s.container.name
+      service.name:
+        - "microservices-order-service"
+        - "microservices-stock-service"
+      k8s.namespace.name:
+        - demo
+        - observability
+      k8s.pod.name:
+        - ".*order-service.*"
+        - ".*stock-service.*"
+      k8s.container.name:
+        - ".*order-service.*"
+        - ".*stock-service.*"
+    
+    admin-team:
+      labels:
+        - "*"
+      service.name:
+        - "*"
+      k8s.namespace.name:
+        - "*"
+      k8s.pod.name:
+        - "*"
+      k8s.container.name:
+        - "*"
+
+  tenant-headers:
+    order-service-team:
+      X-Scope-OrgID: tenant1
+    admin-team:
+      X-Scope-OrgID: tenant2 

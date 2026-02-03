@@ -1,0 +1,29 @@
+{
+  "success_response": {
+    "status": "success",
+    "data": {
+      "resultType": "vector",
+      "result": []
+    }
+  },
+  "tags_response": {
+    "status": "success",
+    "data": ["service.name", "k8s.namespace.name", "k8s.pod.name"]
+  },
+  "tag_values_response": {
+    "status": "success",
+    "data": ["microservices-order-service", "microservices-stock-service"]
+  },
+  "search_response": {
+    "status": "success",
+    "data": {
+      "traces": [],
+      "total": 0
+    }
+  },
+  "error_response": {
+    "status": "error",
+    "error": "query error",
+    "errorType": "bad_data"
+  }
+} 

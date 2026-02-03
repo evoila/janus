@@ -1,0 +1,62 @@
+package com.evoila.janus.tempo;
+
+import com.evoila.janus.common.config.ProxyConfigFactory;
+import com.evoila.janus.common.config.ServiceType;
+import com.evoila.janus.common.controller.BaseProxyController;
+import com.evoila.janus.common.service.RequestProcessingService;
+import com.evoila.janus.security.config.OAuthToken;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+/**
+ * Controller for proxying requests to Tempo Handles TraceQL queries and trace operations with
+ * security enforcement
+ */
+@Slf4j
+@RestController
+@RequestMapping("/tempo")
+@Profile({"tempo", "all"})
+public class TempoController extends BaseProxyController {
+
+  public TempoController(
+      RequestProcessingService requestProcessingService, ProxyConfigFactory proxyConfigFactory) {
+    super(requestProcessingService, proxyConfigFactory);
+  }
+
+  @GetMapping(
+      value = "/api/v2/traces/{traceId}",
+      produces = {"application/octet-stream", "application/protobuf"})
+  public Mono<ResponseEntity<byte[]>> handleBinaryGet(
+      ServerWebExchange exchange,
+      @AuthenticationPrincipal OAuthToken token,
+      @PathVariable String traceId) {
+
+    log.debug(
+        "TempoController: Handling binary GET request to: {}", exchange.getRequest().getURI());
+
+    return handleBinaryGetRequest(exchange, token, ServiceType.TEMPO);
+  }
+
+  @GetMapping("/api/**")
+  public Mono<ResponseEntity<String>> handleGet(
+      ServerWebExchange exchange, @AuthenticationPrincipal OAuthToken token) {
+
+    log.debug("TempoController: Handling GET request to: {}", exchange.getRequest().getURI());
+
+    return handleGetRequest(exchange, token, ServiceType.TEMPO);
+  }
+
+  @PostMapping(value = "/api/**", consumes = "application/x-www-form-urlencoded")
+  public Mono<ResponseEntity<String>> handlePost(
+      ServerWebExchange exchange, @AuthenticationPrincipal OAuthToken token) {
+
+    log.debug("TempoController: Handling POST request to: {}", exchange.getRequest().getURI());
+
+    return handlePostRequest(exchange, token, ServiceType.TEMPO);
+  }
+}

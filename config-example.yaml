@@ -1,0 +1,117 @@
+# Janus Configuration Example
+# Copy this file to local-configmap.yaml and modify for your environment
+
+# Global admin access (applies to all services)
+admin:
+  labels:
+    - "*"  # Allows access to ALL labels without restrictions
+  header:
+    - X-Scope-OrgID: admin-tenant
+  cluster-wide: []
+
+# Thanos/Prometheus configuration
+thanos:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      namespace:
+        - demo
+        - order-service
+      service:
+        - ".+"
+    my-service-team:
+      labels:
+        - "*"
+      namespace:
+        - observability
+        - my-service
+      service:
+        - "my-.*"
+    see-all:
+      labels:
+        - "*"
+      service:
+        - ".+"
+      namespace:
+        - ".+"
+    admin:
+      labels:
+        - "*"
+      service:
+        - "*"
+      namespace:
+        - "*"
+      job:
+        - "*"
+
+# Loki configuration
+loki:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    see-all:
+      header:
+        - X-Scope-OrgID: tenant1
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "demo"
+        - "order-service"
+      service_name:
+        - "*order-service"
+        - "*stock-service"
+    my-service-team:
+      labels:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+      service_name:
+        - "my-.*"
+    see-all:
+      labels:
+        - "*"
+      service:
+        - "*"
+      k8s_namespace_name:
+        - "*"
+
+# Tempo configuration
+tempo:
+  tenant-header-constraints:
+    order-service-team:
+      header:
+        - X-Scope-OrgID: tenant1
+    my-service-team:
+      header:
+        - X-Scope-OrgID: tenant2
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "order-service"
+        - "stock-service"
+    see-all:
+      labels:
+        - "*"
+      resource.service.name:
+        - "*"
+    my-service-team:
+      labels:
+        - "*"
+      resource.service.name:
+        - "my-.*" 

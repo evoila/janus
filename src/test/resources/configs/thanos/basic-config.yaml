@@ -1,0 +1,38 @@
+thanos:
+  user-label-constraints:
+    order-service-team:
+      labels:
+        - service
+        - namespace
+        - pod
+        - container
+      service:
+        - "microservices-order-service"
+        - "microservices-stock-service"
+      namespace:
+        - demo
+        - observability
+      pod:
+        - ".*order-service.*"
+        - ".*stock-service.*"
+      container:
+        - ".*order-service.*"
+        - ".*stock-service.*"
+    
+    admin-team:
+      labels:
+        - "*"
+      service:
+        - "*"
+      namespace:
+        - "*"
+      pod:
+        - "*"
+      container:
+        - "*"
+
+  tenant-headers:
+    order-service-team:
+      X-Scope-OrgID: tenant1
+    admin-team:
+      X-Scope-OrgID: tenant2 
