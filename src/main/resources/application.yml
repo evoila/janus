@@ -35,6 +35,8 @@ security:
     custom-ca-path: ${OAUTH2_CUSTOM_CA_PATH:}
 
 management:
+  server:
+    port: ${MANAGEMENT_PORT:9090}
   metrics:
     tags:
       application: label-proxy
