@@ -42,10 +42,7 @@ public final class LabelParser {
 
     List<String> pairs = splitPairs(processed, syntax);
 
-    return pairs.stream()
-        .map(pair -> parsePair(pair, syntax))
-        .filter(Objects::nonNull)
-        .toList();
+    return pairs.stream().map(pair -> parsePair(pair, syntax)).filter(Objects::nonNull).toList();
   }
 
   /**
@@ -137,9 +134,7 @@ public final class LabelParser {
     return operator;
   }
 
-  /**
-   * Splits a TraceQL labels string on "&&" separator, respecting quoted values.
-   */
+  /** Splits a TraceQL labels string on "&&" separator, respecting quoted values. */
   private static List<String> splitOnTraceQLSeparator(String labels) {
     List<String> pairs = new ArrayList<>();
     StringBuilder current = new StringBuilder();

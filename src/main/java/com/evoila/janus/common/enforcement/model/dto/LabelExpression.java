@@ -12,8 +12,8 @@ package com.evoila.janus.common.enforcement.model.dto;
  * @param quoted Whether the value was originally quoted
  * @param originalText The original unparsed text, used for pass-through when no modification is
  *     needed. Set to null when the expression has been modified.
- * @param passthrough If true, this expression is preserved as-is without enforcement (e.g.,
- *     TraceQL intrinsics or passthrough keywords like "true", "false")
+ * @param passthrough If true, this expression is preserved as-is without enforcement (e.g., TraceQL
+ *     intrinsics or passthrough keywords like "true", "false")
  */
 public record LabelExpression(
     String name,
@@ -24,8 +24,8 @@ public record LabelExpression(
     boolean passthrough) {
 
   /** Creates a standard label expression from parsed components. */
-  public LabelExpression(String name, String operator, String value, boolean quoted,
-      String originalText) {
+  public LabelExpression(
+      String name, String operator, String value, boolean quoted, String originalText) {
     this(name, operator, value, quoted, originalText, false);
   }
 

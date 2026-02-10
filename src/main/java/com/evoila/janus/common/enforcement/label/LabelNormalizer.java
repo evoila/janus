@@ -22,10 +22,11 @@ public final class LabelNormalizer {
    * Normalizes a list of label expressions.
    *
    * <p>Transformations applied:
+   *
    * <ul>
-   *   <li>Empty strings with {@code =} operator → single allowed value or {@code .+} pattern</li>
-   *   <li>Wildcard patterns ({@code *}, {@code .*}) → regex operator with proper pattern</li>
-   *   <li>Preserves {@code !=} and {@code !~} with empty strings as-is</li>
+   *   <li>Empty strings with {@code =} operator → single allowed value or {@code .+} pattern
+   *   <li>Wildcard patterns ({@code *}, {@code .*}) → regex operator with proper pattern
+   *   <li>Preserves {@code !=} and {@code !~} with empty strings as-is
    * </ul>
    *
    * @param expressions The parsed expressions to normalize
@@ -34,9 +35,7 @@ public final class LabelNormalizer {
    */
   public static List<LabelExpression> normalize(
       List<LabelExpression> expressions, Map<String, Set<String>> constraints) {
-    return expressions.stream()
-        .map(expr -> normalizeSingle(expr, constraints))
-        .toList();
+    return expressions.stream().map(expr -> normalizeSingle(expr, constraints)).toList();
   }
 
   static LabelExpression normalizeSingle(
@@ -84,8 +83,10 @@ public final class LabelNormalizer {
       if (allowedValues != null && allowedValues.size() == 1) {
         // Replace with single allowed value
         String singleValue = allowedValues.iterator().next();
-        log.debug("Normalized: replaced empty value with single allowed value '{}' for '{}'",
-            singleValue, expr.name());
+        log.debug(
+            "Normalized: replaced empty value with single allowed value '{}' for '{}'",
+            singleValue,
+            expr.name());
         return expr.withValue(singleValue);
       }
       // Normalize empty string to =~".+" pattern (operator must change since .+ is regex)
@@ -101,7 +102,8 @@ public final class LabelNormalizer {
 
     // All other cases (wildcard patterns): convert to regex operator with .* pattern
     String wildcardPattern = LabelPatternUtils.REGEX_ANY_CHARS;
-    log.debug("Normalized: wildcard '{}' to =~\"{}\" for '{}'", value, wildcardPattern, expr.name());
+    log.debug(
+        "Normalized: wildcard '{}' to =~\"{}\" for '{}'", value, wildcardPattern, expr.name());
     return expr.withOperatorAndValue(LabelPatternUtils.REGEX_MATCH_OPERATOR, wildcardPattern);
   }
 }

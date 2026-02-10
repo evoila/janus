@@ -527,7 +527,9 @@ class LabelProcessorTest {
     // Then: Should normalize to =~".+" since .+ is a regex pattern
     assertNotNull(result);
     assertEquals(
-        "namespace=~\".+\"", result, "Empty string with = operator should be normalized to =~\".+\"");
+        "namespace=~\".+\"",
+        result,
+        "Empty string with = operator should be normalized to =~\".+\"");
   }
 
   // ========================================================================
@@ -706,7 +708,8 @@ class LabelProcessorTest {
   // ---------------------------------------------------------------------------
 
   @Test
-  @DisplayName("Should extract !~ operator prefix from constraint value when adding missing constraints")
+  @DisplayName(
+      "Should extract !~ operator prefix from constraint value when adding missing constraints")
   void testAddMissingConstraints_WithNegativeRegexOperatorPrefix() {
     // Given: constraint value encodes operator prefix "!~^kube-.*"
     String existingLabels = "pod=\"my-pod\"";
@@ -729,7 +732,8 @@ class LabelProcessorTest {
   }
 
   @Test
-  @DisplayName("Should extract =~ operator prefix from constraint value when adding missing constraints")
+  @DisplayName(
+      "Should extract =~ operator prefix from constraint value when adding missing constraints")
   void testAddMissingConstraints_WithRegexOperatorPrefix() {
     String existingLabels = "pod=\"my-pod\"";
     Map<String, Set<String>> constraints = new HashMap<>();
@@ -746,7 +750,8 @@ class LabelProcessorTest {
   }
 
   @Test
-  @DisplayName("Should extract != operator prefix from constraint value when adding missing constraints")
+  @DisplayName(
+      "Should extract != operator prefix from constraint value when adding missing constraints")
   void testAddMissingConstraints_WithNotEqualsOperatorPrefix() {
     String existingLabels = "pod=\"my-pod\"";
     Map<String, Set<String>> constraints = new HashMap<>();

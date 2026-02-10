@@ -17,11 +17,12 @@ import lombok.extern.slf4j.Slf4j;
  * Applies security constraints to normalized {@link LabelExpression} objects.
  *
  * <p>This class handles:
+ *
  * <ul>
- *   <li>Operator-specific enforcement (=, !=, =~, !~)</li>
- *   <li>Wildcard expansion to allowed values</li>
- *   <li>Adding missing constraint labels</li>
- *   <li>Validation of enhanced expressions</li>
+ *   <li>Operator-specific enforcement (=, !=, =~, !~)
+ *   <li>Wildcard expansion to allowed values
+ *   <li>Adding missing constraint labels
+ *   <li>Validation of enhanced expressions
  * </ul>
  */
 @Slf4j
@@ -31,9 +32,9 @@ public final class LabelEnhancer {
 
   /** Operator prefixes that can be embedded in constraint values (check order: longest first). */
   private static final String[] VALUE_OPERATOR_PREFIXES = {
-      LabelPatternUtils.REGEX_NOT_MATCH_OPERATOR,  // !~
-      LabelPatternUtils.REGEX_MATCH_OPERATOR,       // =~
-      LabelPatternUtils.NOT_EQUALS_OPERATOR         // !=
+    LabelPatternUtils.REGEX_NOT_MATCH_OPERATOR, // !~
+    LabelPatternUtils.REGEX_MATCH_OPERATOR, // =~
+    LabelPatternUtils.NOT_EQUALS_OPERATOR // !=
   };
 
   private LabelEnhancer() {}
@@ -66,8 +67,12 @@ public final class LabelEnhancer {
         continue;
       }
 
-      log.debug("LabelEnhancer: Processing '{}' op='{}' value='{}' allowed={}",
-          expr.name(), expr.operator(), expr.value(), allowedValues);
+      log.debug(
+          "LabelEnhancer: Processing '{}' op='{}' value='{}' allowed={}",
+          expr.name(),
+          expr.operator(),
+          expr.value(),
+          allowedValues);
 
       Optional<LabelExpression> enhanced = enhanceSingle(expr, allowedValues);
       enhanced.ifPresent(result::add);
@@ -85,10 +90,11 @@ public final class LabelEnhancer {
    */
   public static List<LabelExpression> addMissingConstraints(
       List<LabelExpression> expressions, Map<String, Set<String>> constraints) {
-    Set<String> existingNames = expressions.stream()
-        .filter(e -> !e.passthrough())
-        .map(LabelExpression::name)
-        .collect(Collectors.toSet());
+    Set<String> existingNames =
+        expressions.stream()
+            .filter(e -> !e.passthrough())
+            .map(LabelExpression::name)
+            .collect(Collectors.toSet());
 
     List<LabelExpression> result = new ArrayList<>(expressions);
 
@@ -104,7 +110,8 @@ public final class LabelEnhancer {
       }
 
       // Skip wildcard constraints
-      if (allowedValues == null || allowedValues.isEmpty()
+      if (allowedValues == null
+          || allowedValues.isEmpty()
           || LabelPatternUtils.containsWildcardValues(allowedValues)) {
         continue;
       }
@@ -128,9 +135,7 @@ public final class LabelEnhancer {
    */
   public static List<LabelExpression> validate(
       List<LabelExpression> expressions, Map<String, Set<String>> constraints) {
-    return expressions.stream()
-        .filter(expr -> isValid(expr, constraints))
-        .toList();
+    return expressions.stream().filter(expr -> isValid(expr, constraints)).toList();
   }
 
   // ---------------------------------------------------------------------------
@@ -140,8 +145,7 @@ public final class LabelEnhancer {
   private static Optional<LabelExpression> enhanceSingle(
       LabelExpression expr, Set<String> allowedValues) {
     boolean isValueWildcard = LabelPatternUtils.isEmptyOrWildcard(expr.value());
-    boolean hasWildcardConstraints =
-        allowedValues != null && hasAnyWildcard(allowedValues);
+    boolean hasWildcardConstraints = allowedValues != null && hasAnyWildcard(allowedValues);
     boolean hasSpecificConstraints =
         allowedValues != null && !allowedValues.isEmpty() && !hasWildcardConstraints;
 
@@ -152,8 +156,9 @@ public final class LabelEnhancer {
     }
 
     return switch (expr.operator()) {
-      case "=" -> handleEquals(expr, allowedValues, isValueWildcard, hasWildcardConstraints,
-          hasSpecificConstraints);
+      case "=" ->
+          handleEquals(
+              expr, allowedValues, isValueWildcard, hasWildcardConstraints, hasSpecificConstraints);
       case "!=" -> handleNotEquals(expr, allowedValues, isValueWildcard, hasSpecificConstraints);
       case "=~" -> handleRegexMatch(expr, allowedValues, isValueWildcard, hasSpecificConstraints);
       case "!~" -> handleRegexNotMatch(expr, allowedValues, hasSpecificConstraints);
@@ -167,8 +172,11 @@ public final class LabelEnhancer {
   // --- Equals (=) ---
 
   private static Optional<LabelExpression> handleEquals(
-      LabelExpression expr, Set<String> allowedValues,
-      boolean isValueWildcard, boolean hasWildcardConstraints, boolean hasSpecificConstraints) {
+      LabelExpression expr,
+      Set<String> allowedValues,
+      boolean isValueWildcard,
+      boolean hasWildcardConstraints,
+      boolean hasSpecificConstraints) {
     if (isValueWildcard) {
       return expandWildcard(expr, allowedValues);
     }
@@ -187,9 +195,10 @@ public final class LabelEnhancer {
     if (allowedValues.contains(expr.value())) {
       return;
     }
-    boolean matchesPattern = allowedValues.stream()
-        .filter(LabelPatternUtils::isFullRegexPattern)
-        .anyMatch(pattern -> matchesRegex(pattern, expr.value()));
+    boolean matchesPattern =
+        allowedValues.stream()
+            .filter(LabelPatternUtils::isFullRegexPattern)
+            .anyMatch(pattern -> matchesRegex(pattern, expr.value()));
     if (matchesPattern) {
       return;
     }
@@ -199,8 +208,10 @@ public final class LabelEnhancer {
   // --- Not Equals (!=) ---
 
   private static Optional<LabelExpression> handleNotEquals(
-      LabelExpression expr, Set<String> allowedValues,
-      boolean isValueWildcard, boolean hasSpecificConstraints) {
+      LabelExpression expr,
+      Set<String> allowedValues,
+      boolean isValueWildcard,
+      boolean hasSpecificConstraints) {
     // Preserve != with empty string as-is
     if (expr.value() != null && expr.value().isEmpty()) {
       return Optional.of(expr);
@@ -209,9 +220,8 @@ public final class LabelEnhancer {
       return expandWildcard(expr, allowedValues);
     }
     if (hasSpecificConstraints) {
-      Set<String> remaining = allowedValues.stream()
-          .filter(v -> !v.equals(expr.value()))
-          .collect(Collectors.toSet());
+      Set<String> remaining =
+          allowedValues.stream().filter(v -> !v.equals(expr.value())).collect(Collectors.toSet());
       if (remaining.isEmpty()) {
         throw new SecurityException(UNAUTHORIZED_MSG + expr.value());
       }
@@ -223,23 +233,26 @@ public final class LabelEnhancer {
   // --- Regex Match (=~) ---
 
   private static Optional<LabelExpression> handleRegexMatch(
-      LabelExpression expr, Set<String> allowedValues,
-      boolean isValueWildcard, boolean hasSpecificConstraints) {
+      LabelExpression expr,
+      Set<String> allowedValues,
+      boolean isValueWildcard,
+      boolean hasSpecificConstraints) {
     if (isValueWildcard) {
       return expandWildcard(expr, allowedValues);
     }
     if (hasSpecificConstraints) {
-      Set<String> matching = allowedValues.stream()
-          .filter(v -> matchesRegex(expr.value(), v))
-          .collect(Collectors.toSet());
+      Set<String> matching =
+          allowedValues.stream()
+              .filter(v -> matchesRegex(expr.value(), v))
+              .collect(Collectors.toSet());
       if (matching.isEmpty()) {
         throw new SecurityException(UNAUTHORIZED_MSG + expr.value());
       }
       return Optional.of(buildConstraintExpression(expr.name(), matching));
     }
     // No specific constraints: reconstruct (originalText may have old operator)
-    return Optional.of(expr.withOperatorAndValue(
-        LabelPatternUtils.REGEX_MATCH_OPERATOR, expr.value()));
+    return Optional.of(
+        expr.withOperatorAndValue(LabelPatternUtils.REGEX_MATCH_OPERATOR, expr.value()));
   }
 
   // --- Regex Not Match (!~) ---
@@ -248,24 +261,25 @@ public final class LabelEnhancer {
       LabelExpression expr, Set<String> allowedValues, boolean hasSpecificConstraints) {
     if (allowedValues == null) {
       // No constraints: reconstruct (originalText may have old operator)
-      return Optional.of(expr.withOperatorAndValue(
-          LabelPatternUtils.REGEX_NOT_MATCH_OPERATOR, expr.value()));
+      return Optional.of(
+          expr.withOperatorAndValue(LabelPatternUtils.REGEX_NOT_MATCH_OPERATOR, expr.value()));
     }
     if (allowedValues.isEmpty()) {
       return Optional.empty();
     }
     if (hasSpecificConstraints) {
-      Set<String> remaining = allowedValues.stream()
-          .filter(v -> !matchesRegex(expr.value(), v))
-          .collect(Collectors.toSet());
+      Set<String> remaining =
+          allowedValues.stream()
+              .filter(v -> !matchesRegex(expr.value(), v))
+              .collect(Collectors.toSet());
       if (remaining.isEmpty()) {
         throw new SecurityException(UNAUTHORIZED_MSG + expr.value());
       }
       return Optional.of(buildConstraintExpression(expr.name(), remaining));
     }
     // Wildcard constraints: preserve original
-    return Optional.of(expr.withOperatorAndValue(
-        LabelPatternUtils.REGEX_NOT_MATCH_OPERATOR, expr.value()));
+    return Optional.of(
+        expr.withOperatorAndValue(LabelPatternUtils.REGEX_NOT_MATCH_OPERATOR, expr.value()));
   }
 
   // ---------------------------------------------------------------------------
@@ -273,13 +287,15 @@ public final class LabelEnhancer {
   // ---------------------------------------------------------------------------
 
   /**
-   * Checks if any value in the set is a wildcard — either an exact wildcard pattern (*, .*, .+)
-   * or a glob-style pattern containing * (e.g., *order-service).
+   * Checks if any value in the set is a wildcard — either an exact wildcard pattern (*, .*, .+) or
+   * a glob-style pattern containing * (e.g., *order-service).
    */
   private static boolean hasAnyWildcard(Set<String> allowedValues) {
     return allowedValues.stream()
-        .anyMatch(v -> LabelPatternUtils.isWildcardPattern(v)
-            || v.contains(LabelPatternUtils.WILDCARD_ASTERISK));
+        .anyMatch(
+            v ->
+                LabelPatternUtils.isWildcardPattern(v)
+                    || v.contains(LabelPatternUtils.WILDCARD_ASTERISK));
   }
 
   private static Optional<LabelExpression> expandWildcard(
@@ -312,16 +328,18 @@ public final class LabelEnhancer {
       }
       return new LabelExpression(labelName, "=~", value, true, null);
     }
-    String pattern = allowedValues.stream()
-        .map(v -> {
-          if (LabelPatternUtils.isFullRegexPattern(v)
-              || v.contains(LabelPatternUtils.REGEX_ANY_CHARS)
-              || v.contains(LabelPatternUtils.REGEX_ONE_OR_MORE)) {
-            return v;
-          }
-          return v;
-        })
-        .collect(Collectors.joining("|"));
+    String pattern =
+        allowedValues.stream()
+            .map(
+                v -> {
+                  if (LabelPatternUtils.isFullRegexPattern(v)
+                      || v.contains(LabelPatternUtils.REGEX_ANY_CHARS)
+                      || v.contains(LabelPatternUtils.REGEX_ONE_OR_MORE)) {
+                    return v;
+                  }
+                  return v;
+                })
+            .collect(Collectors.joining("|"));
     return new LabelExpression(labelName, "=~", pattern, true, null);
   }
 
@@ -338,27 +356,29 @@ public final class LabelEnhancer {
         return new LabelExpression(labelName, parsed[0], parsed[1], true, null);
       }
       if (LabelPatternUtils.isWildcardPattern(value)) {
-        return new LabelExpression(labelName, "=~",
-            LabelPatternUtils.convertWildcardToRegex(value), true, null);
+        return new LabelExpression(
+            labelName, "=~", LabelPatternUtils.convertWildcardToRegex(value), true, null);
       }
       return new LabelExpression(labelName, "=", value, true, null);
     }
-    String pattern = allowedValues.stream()
-        .map(v -> {
-          if (LabelPatternUtils.isFullRegexPattern(v)
-              || v.contains(LabelPatternUtils.REGEX_ANY_CHARS)
-              || v.contains(LabelPatternUtils.REGEX_ONE_OR_MORE)) {
-            return v;
-          }
-          return v;
-        })
-        .collect(Collectors.joining("|"));
+    String pattern =
+        allowedValues.stream()
+            .map(
+                v -> {
+                  if (LabelPatternUtils.isFullRegexPattern(v)
+                      || v.contains(LabelPatternUtils.REGEX_ANY_CHARS)
+                      || v.contains(LabelPatternUtils.REGEX_ONE_OR_MORE)) {
+                    return v;
+                  }
+                  return v;
+                })
+            .collect(Collectors.joining("|"));
     return new LabelExpression(labelName, "=~", pattern, true, null);
   }
 
   /**
-   * Extracts an operator prefix from a constraint value. Constraint values can encode operators
-   * as prefixes, e.g., "!~^kube-.*" → ["!~", "^kube-.*"].
+   * Extracts an operator prefix from a constraint value. Constraint values can encode operators as
+   * prefixes, e.g., "!~^kube-.*" → ["!~", "^kube-.*"].
    *
    * @return [operator, value] if prefix found, null otherwise
    */
@@ -366,7 +386,7 @@ public final class LabelEnhancer {
     if (value != null) {
       for (String prefix : VALUE_OPERATOR_PREFIXES) {
         if (value.startsWith(prefix)) {
-          return new String[]{prefix, value.substring(prefix.length())};
+          return new String[] {prefix, value.substring(prefix.length())};
         }
       }
     }
@@ -398,10 +418,10 @@ public final class LabelEnhancer {
     if (matcher.find()) {
       String labelName = matcher.group(1);
       String labelValue = matcher.group(3);
-      boolean allowed = LabelAccessValidator.isLabelValueAccessAllowed(
-          constraints, labelName, labelValue);
-      log.debug("LabelEnhancer: validate '{}' value='{}' allowed={}", labelName, labelValue,
-          allowed);
+      boolean allowed =
+          LabelAccessValidator.isLabelValueAccessAllowed(constraints, labelName, labelValue);
+      log.debug(
+          "LabelEnhancer: validate '{}' value='{}' allowed={}", labelName, labelValue, allowed);
       return allowed;
     }
     return true;

@@ -106,7 +106,6 @@ public final class LabelProcessor {
     }
   }
 
-
   /**
    * Parses a labels section string into a map of label constraints (PromQL/LogQL syntax). Duplicate
    * label names are deduplicated (last wins).
@@ -131,16 +130,12 @@ public final class LabelProcessor {
                 LinkedHashMap::new));
   }
 
-  /**
-   * Parses a labels section into individual label pair strings using PromQL/LogQL syntax.
-   */
+  /** Parses a labels section into individual label pair strings using PromQL/LogQL syntax. */
   public static List<String> parseLabelPairs(String labels) {
     return parseLabelPairs(labels, QuerySyntax.forLanguage(QueryContext.QueryLanguage.PROMQL));
   }
 
-  /**
-   * Parses a labels section into individual label pair strings using the given syntax.
-   */
+  /** Parses a labels section into individual label pair strings using the given syntax. */
   public static List<String> parseLabelPairs(String labels, QuerySyntax syntax) {
     return LabelParser.splitPairs(labels, syntax);
   }
@@ -161,9 +156,7 @@ public final class LabelProcessor {
     return serialize(normalized, syntax);
   }
 
-  /**
-   * Checks if a query has label selectors.
-   */
+  /** Checks if a query has label selectors. */
   public static boolean hasLabelSelectors(String query) {
     return query != null && !StringParser.findLabelSections(query).isEmpty();
   }
