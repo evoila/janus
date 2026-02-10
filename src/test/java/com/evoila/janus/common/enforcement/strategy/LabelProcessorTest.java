@@ -387,9 +387,9 @@ class LabelProcessorTest {
         LabelProcessor.normalizeWildcardPatterns(
             labels, parsedConstraints, existingLabelNames, labelConstraints);
 
-    // Then: Should normalize to .+ pattern since there are multiple allowed values
+    // Then: Should normalize to =~".+" since .+ is a regex pattern
     assertNotNull(result);
-    assertEquals("namespace=\".+\"", result);
+    assertEquals("namespace=~\".+\"", result);
   }
 
   @Test
@@ -524,10 +524,10 @@ class LabelProcessorTest {
         LabelProcessor.normalizeWildcardPatterns(
             labels, parsedConstraints, existingLabelNames, labelConstraints);
 
-    // Then: Should normalize to .+ since it's not a != or !~ operator
+    // Then: Should normalize to =~".+" since .+ is a regex pattern
     assertNotNull(result);
     assertEquals(
-        "namespace=\".+\"", result, "Empty string with = operator should be normalized to .+");
+        "namespace=~\".+\"", result, "Empty string with = operator should be normalized to =~\".+\"");
   }
 
   // ========================================================================
@@ -699,5 +699,66 @@ class LabelProcessorTest {
         enhanced.contains("resource.service.name != nil"),
         "Should preserve resource.service.name != nil: got '" + enhanced + "'");
     assertTrue(enhanced.contains("nestedSetParent<0"), "Should preserve intrinsic attribute");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Operator prefix extraction from constraint values
+  // ---------------------------------------------------------------------------
+
+  @Test
+  @DisplayName("Should extract !~ operator prefix from constraint value when adding missing constraints")
+  void testAddMissingConstraints_WithNegativeRegexOperatorPrefix() {
+    // Given: constraint value encodes operator prefix "!~^kube-.*"
+    String existingLabels = "pod=\"my-pod\"";
+    Map<String, Set<String>> constraints = new HashMap<>();
+    constraints.put("pod", Set.of("my-pod"));
+    constraints.put("k8s_namespace_name", Set.of("!~^kube-.*"));
+
+    // When
+    EnhancementResult result = LabelProcessor.enhanceLabelsSection(existingLabels, constraints);
+
+    // Then: should extract !~ as operator, ^kube-.* as value
+    assertTrue(result.isSuccess());
+    String enhanced = result.getEnhancedQuery();
+    assertTrue(
+        enhanced.contains("k8s_namespace_name!~\"^kube-.*\""),
+        "Should extract !~ operator prefix from value: got '" + enhanced + "'");
+    assertFalse(
+        enhanced.contains("=~\"!~"),
+        "Should NOT wrap operator prefix in value: got '" + enhanced + "'");
+  }
+
+  @Test
+  @DisplayName("Should extract =~ operator prefix from constraint value when adding missing constraints")
+  void testAddMissingConstraints_WithRegexOperatorPrefix() {
+    String existingLabels = "pod=\"my-pod\"";
+    Map<String, Set<String>> constraints = new HashMap<>();
+    constraints.put("pod", Set.of("my-pod"));
+    constraints.put("k8s_namespace_name", Set.of("=~prod-.*"));
+
+    EnhancementResult result = LabelProcessor.enhanceLabelsSection(existingLabels, constraints);
+
+    assertTrue(result.isSuccess());
+    String enhanced = result.getEnhancedQuery();
+    assertTrue(
+        enhanced.contains("k8s_namespace_name=~\"prod-.*\""),
+        "Should extract =~ operator prefix from value: got '" + enhanced + "'");
+  }
+
+  @Test
+  @DisplayName("Should extract != operator prefix from constraint value when adding missing constraints")
+  void testAddMissingConstraints_WithNotEqualsOperatorPrefix() {
+    String existingLabels = "pod=\"my-pod\"";
+    Map<String, Set<String>> constraints = new HashMap<>();
+    constraints.put("pod", Set.of("my-pod"));
+    constraints.put("k8s_namespace_name", Set.of("!=kube-system"));
+
+    EnhancementResult result = LabelProcessor.enhanceLabelsSection(existingLabels, constraints);
+
+    assertTrue(result.isSuccess());
+    String enhanced = result.getEnhancedQuery();
+    assertTrue(
+        enhanced.contains("k8s_namespace_name!=\"kube-system\""),
+        "Should extract != operator prefix from value: got '" + enhanced + "'");
   }
 }
