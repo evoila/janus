@@ -5,7 +5,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:25.0.1_8-jre-jammy
+FROM eclipse-temurin:25.0.2_10-jre-jammy
 VOLUME /tmp
 WORKDIR /app
 
