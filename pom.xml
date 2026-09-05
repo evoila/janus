@@ -25,7 +25,7 @@
     <properties>
         <java.version>25</java.version>
         <spring.boot.version>4.0.2</spring.boot.version>
-        <lombok.version>1.18.42</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
         <mockito.version>5.20.0</mockito.version>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
