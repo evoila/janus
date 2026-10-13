@@ -1,5 +1,6 @@
 # Stage 1: Build the application
-FROM maven:3.9-eclipse-temurin-25-alpine AS builder
+# The JAR is platform-independent, so build it natively on the build host
+FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-25-alpine AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
