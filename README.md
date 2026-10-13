@@ -32,6 +32,8 @@ Pre-built container images are available from the GitHub Container Registry:
 docker pull ghcr.io/evoila/janus:latest
 ```
 
+Images are published as multi-arch manifests for `linux/amd64` and `linux/arm64`; Docker automatically pulls the variant matching your host. A JVM-based variant is also available with a `-jre` suffix (e.g. `ghcr.io/evoila/janus:latest-jre`).
+
 Janus uses [semantic versioning](https://semver.org/). The following tags are available:
 
 | Tag | Example | Description |
